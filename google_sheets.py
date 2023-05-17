@@ -88,7 +88,7 @@ resultado = resultado.iloc[:, :-3]
 
 print(resultado)
 
-resultado.drop(columns = ["Telefone", "Email", "URL de referência","CTL 1 [Outros]", "CTL 7", "CTL 8", "CTL 9", "CTL 10", "CTL 11", "CTL 12", "Outros públicos beneficiados indiretamente", "Apresente a memória de cálculo referente ao subelemento acima"], inplace=True)
+resultado.drop(columns = ["Telefone", "Email", "URL de referência","CTL 1 [Outros]", "CTL 7", "CTL 8", "CTL 9", "CTL 10", "CTL 11", "CTL 12", "Outros públicos beneficiados indiretamente"], inplace=True)
 
 pd.to_numeric(resultado["Valor solicitado para o 1º subelemento de despesa selecionado "])#transforma em número e preenche colunas vazias com zero, podemos também criar uma função para fazer isso com as outras colunas
 resultado["Valor solicitado para o 1º subelemento de despesa selecionado "] = resultado["Valor solicitado para o 1º subelemento de despesa selecionado "].astype(float)
@@ -136,7 +136,22 @@ resultado = resultado.fillna('')
 os.remove(arquivo_baixado)
 navegador.close()
 
-ws.update([resultado.columns.values.tolist()] + resultado.values.tolist())
+tabelaAntiga = ws.get_all_values()
+
+df = pd.DataFrame(tabelaAntiga)
+
+df.columns = df.iloc[0]
+df = df[1:]
+
+indiceUltimaLinha = len(df) - 1
+
+ultima_linha = df.iloc[indiceUltimaLinha]
+maiorID = ultima_linha['ID da resposta']
+
+for index, row in resultado.iterrows():
+    if int(row['ID da resposta']) > int(maiorID):
+      row = row.tolist()
+      ws.append_row(row)
 
 print('the end')
 
